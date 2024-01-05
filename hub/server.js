@@ -16,8 +16,10 @@ var WebSocketServer = WEBSOCKET_COMPAT ?
   require("./websocket-compat").server :
   require("websocket").server;
 var http = require('http');
+var https = require('https');
 var parseUrl = require('url').parse;
 var fs = require('fs');
+require('dotenv').config();
 
 // FIXME: not sure what logger to use
 //var logger = require('../../lib/logger');
@@ -99,21 +101,32 @@ Logger.prototype = {
 
 var logger = new Logger(0, null, true);
 
-var server = http.createServer(function(request, response) {
+require('dotenv').config();
+
+var httpsOptions = {
+  key: fs.readFileSync(process.env.KEY_FILE_PATH),
+  cert: fs.readFileSync(process.env.PEM_FILE_PATH),
+
+};
+
+var server = https.createServer(httpsOptions, function(request, response) {
   var url = parseUrl(request.url, true);
   var protocol = request.headers["forwarded-proto"] || "http:";
   var host = request.headers.host;
   var base = protocol + "//" + host;
+  console.log("server request, protocol=" + protocol + ", url=" + request.url + ", pathname=" + url.pathname);
+  console.log(request.url);
 
   if (url.pathname == '/status') {
     response.end("OK");
   } else if (url.pathname == '/load') {
     var load = getLoad();
     response.writeHead(200, {"Content-Type": "text/plain"});
-    response.end("OK " + load.connections + " connections " +
-                 load.sessions + " sessions; " +
-                 load.solo + " are single-user and " +
-                 (load.sessions - load.solo) + " active sessions");
+    response.end("OK\n" +
+        "Connections: " + load.connections + "\n" +
+        "Sessions: " + load.sessions + "\n" +
+        "Single-user: " + load.solo + "\n" +
+        "Active sessions: " + (load.sessions - load.solo));
   } else if (url.pathname == '/server-source') {
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.end(thisSource);
@@ -237,6 +250,7 @@ var connectionStats = {};
 var ID = 0;
 
 wsServer.on('request', function(request) {
+  console.log("get connection request");
   if (!originIsAllowed(request.origin)) {
     // Make sure we only accept requests from an allowed origin
     request.reject();

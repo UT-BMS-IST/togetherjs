@@ -108,3 +108,35 @@ License
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this file,
 You can obtain one at [http://mozilla.org/MPL/2.0/](http://mozilla.org/MPL/2.0/).
+
+Environment Variables
+---------------------
+
+You can specify the following environment variables in a .env file in the root directory of the project:
+
+```
+HOST=<host name or ip>
+PORT=<port number>
+LOG_LEVEL=<from 0 (very verbose) to 5 (nothing), default 0>
+LOG_FILE=<file to log to (defaultstdout)>
+STDOUT=<boolean, log to file and stdout>
+KEY_FILE_PATH=<path to certificate key file>
+PEM_FILE_PATH=<path to certificate pem file>
+```
+
+Status calls
+------------
+There are two status calls that can be made to the server:
+```
+/status
+returns the text OK if the server is running
+```
+```
+/load
+returns a text with status information:
+OK
+Connections: 0
+Sessions: 0
+Single-user: 0
+Active sessions: 0
+```
