@@ -1,0 +1,137 @@
+name: Deploy workflow
+on:
+#  push:
+#    branches: [ master ]
+  workflow_dispatch:
+#    inputs:
+#      environment:
+#        description: 'Environment to deploy to'
+#        required: true
+#        default: 'warning'
+#        type: choice
+#        options:
+#          - develop
+#          - production
+env:
+  General_Timeout_Minutes: 15
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  setup:
+    name: Setup variables
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set root directory
+        id: step1
+        env:
+          BRANCH_NAME: ${{ github.ref }}
+        run: |
+          echo "$BRANCH_NAME"
+          if [ $BRANCH_NAME == "refs/heads/develop" ]
+          then
+            echo "Deploying to the develop environment"
+            FOLDER=develop
+            ENVIRONMENT=staging
+            SERVER_URL=sbs-test.bms.utwente.nl
+          elif [ $BRANCH_NAME == "refs/heads/production" ]
+          then
+            echo "Deploying to the production environment"
+            FOLDER=production
+            ENVIRONMENT=production
+            SERVER_URL=sbs-prod.bms.utwente.nl
+          else
+            echo "Error: branch $BRANCH_NAME has no deploy environment"
+            exit 1
+          fi
+          echo "FOLDER=$FOLDER" >> $GITHUB_OUTPUT
+          ROOT_FOLDER=/var/www/mongo-storage/"$FOLDER"/mongo-storage
+          echo "ROOT_FOLDER=$ROOT_FOLDER" >> $GITHUB_OUTPUT
+          echo "ENVIRONMENT=$ENVIRONMENT" >> $GITHUB_OUTPUT
+          echo "SERVER_URL=$SERVER_URL" >> $GITHUB_OUTPUT
+          echo "18.19.0=$NODE_VERSION" >> $GITHUB_OUTPUT
+    outputs:
+      ROOT_FOLDER: ${{ steps.step1.outputs.ROOT_FOLDER }}
+      FOLDER: ${{ steps.step1.outputs.FOLDER }}
+      ENVIRONMENT: ${{ steps.step1.outputs.ENVIRONMENT }}
+      SERVER_URL: ${{ steps.step1.outputs.SERVER_URL }}
+      NODE_VERSION: ${{ steps.step1.outputs.NODE_VERSION }}
+  checkout_code_job_and_install_root_node_modules:
+    name: Checkout code
+    runs-on: ubuntu-latest
+    needs: [ setup ]
+    timeout-minutes: 30
+    steps:
+      - name: ssh connection to server
+        env:
+          GIT_USERNAME: "shantd9"
+          GIT_PASS: ${{ secrets.SHANT_DEPLOY_SECRET }}
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ needs.setup.outputs.SERVER_URL }}
+          username: sbserv
+          key: ${{ secrets.SBSERV_PRIVATE_KEY_FOR_TOGETHERJS }}
+          port: 22
+          envs: GIT_USERNAME, GIT_PASS
+          script: |
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
+            nvm use 18.19.0
+            cd ${{ needs.setup.outputs.ROOT_FOLDER }}
+            git stash
+            git stash drop
+            echo environment
+            echo $ENVIRONMENT
+            if [ ${{ needs.setup.outputs.ENVIRONMENT }} == "develop" ]
+            then
+              echo "Develop environment - need to checkout develop"
+              git checkout develop
+            else
+              echo "Not in the develop environment"
+            fi
+            if [ ${{ needs.setup.outputs.ENVIRONMENT }} == "production" ]
+            then
+              echo "Pilots staging environment - need to checkout production"
+              git checkout production
+            else
+              echo "Not in the production environment"
+            fi
+            git pull
+            npm install
+  build_server_job:
+    name: Build the nestjs server
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [ setup, checkout_code_job_and_install_root_node_modules ]
+    steps:
+      - name: Building the togetherjs server
+        env:
+          NODE_VERSION: $NODE_VERSION
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ needs.setup.outputs.SERVER_URL }}
+          username: sbserv
+          key: ${{ secrets.SBSERV_PRIVATE_KEY_FOR_TOGETHERJS }}
+          port: 22
+          script_stop: true
+          script: |
+            cd ${{ needs.setup.outputs.ROOT_FOLDER }}
+            docker-compose build
+  restart_server_job:
+    name: Restart server
+    runs-on: ubuntu-latest
+    needs: [ setup, checkout_code_job_and_install_root_node_modules, build_server_job ]
+    steps:
+      - name: Restart server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ needs.setup.outputs.SERVER_URL }}
+          username: sbserv
+          key: ${{ secrets.SBSERV_PRIVATE_KEY_FOR_TOGETHERJS }}
+          port: 22
+          script_stop: true
+          script: |
+            cd ${{ needs.setup.outputs.ROOT_FOLDER }}
+            docker stop togetherjs-server || true
+            docker-compose up -d
+            docker system prune -af
