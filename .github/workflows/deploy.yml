@@ -45,7 +45,7 @@ jobs:
             exit 1
           fi
           echo "FOLDER=$FOLDER" >> $GITHUB_OUTPUT
-          ROOT_FOLDER=/var/www/mongo-storage/"$FOLDER"/mongo-storage
+          ROOT_FOLDER=/var/www/togetherjs/"$FOLDER"/togetherjs-storage
           echo "ROOT_FOLDER=$ROOT_FOLDER" >> $GITHUB_OUTPUT
           echo "ENVIRONMENT=$ENVIRONMENT" >> $GITHUB_OUTPUT
           echo "SERVER_URL=$SERVER_URL" >> $GITHUB_OUTPUT
