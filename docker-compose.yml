@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  togetherjs_server:
+    container_name: togetherjs-server-${ENVIRONMENT}
+    build:
+      context: ./
+      dockerfile: 'Dockerfile'
+#    restart: unless-stopped
+    ports:
+      - "${HOST}:${PORT}:443"
+    volumes:
+      - ${KEY_FILE_PATH}:/usr/src/app/certificates/key-file.key
+      - ${PEM_FILE_PATH}:/usr/src/app/certificates/key-file.pem
+      - ${LOG_FILE}:/usr/src/app/logging/logFile.log
+    environment:
+      - HOST=togetherjs_server
+      - PORT=443
+      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_FILE=/usr/src/app/logging/logFile.log
+      - STDOUT=${STDOUT}
+      - KEY_FILE_PATH=/usr/src/app/certificates/key-file.key
+      - PEM_FILE_PATH=/usr/src/app/certificates/key-file.pem
+
