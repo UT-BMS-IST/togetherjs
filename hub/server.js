@@ -79,6 +79,7 @@ Logger.prototype = {
       this.file = null;
     }
     if (this.filename) {
+      console.log("Opening log file", this.filename);
       this.file = fs.createWriteStream(this.filename, {flags: 'a', mode: parseInt('644', 8), encoding: "UTF-8"});
     }
   }

@@ -12,7 +12,7 @@ services:
     volumes:
       - ${KEY_FILE_PATH}:/usr/src/app/certificates/key-file.key
       - ${PEM_FILE_PATH}:/usr/src/app/certificates/key-file.pem
-      - ${LOG_FILE}:/usr/src/app/logging/logFile.log
+#      - ${LOG_FILE}:/usr/src/app/logging/logFile.log
     environment:
       - HOST=togetherjs_server
       - PORT=443
