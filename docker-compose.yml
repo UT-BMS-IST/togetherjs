@@ -6,7 +6,7 @@ services:
     build:
       context: ./
       dockerfile: 'Dockerfile'
-    restart: unless-stopped
+#    restart: unless-stopped
     ports:
       - "${HOST}:${PORT}:443"
     volumes:
