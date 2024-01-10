@@ -32,7 +32,7 @@ jobs:
           then
             echo "Deploying to the develop environment"
             FOLDER=develop
-            ENVIRONMENT=staging
+            ENVIRONMENT=develop
             SERVER_URL=sbs-test.bms.utwente.nl
           elif [ $BRANCH_NAME == "refs/heads/production" ]
           then
@@ -80,8 +80,6 @@ jobs:
             cd ${{ needs.setup.outputs.ROOT_FOLDER }}
             git stash
             git stash drop
-            echo environment
-            echo $ENVIRONMENT
             if [ ${{ needs.setup.outputs.ENVIRONMENT }} == "develop" ]
             then
               echo "Develop environment - need to checkout develop"
@@ -132,6 +130,6 @@ jobs:
           script_stop: true
           script: |
             cd ${{ needs.setup.outputs.ROOT_FOLDER }}
-            docker stop togetherjs-server || true
+            docker stop togetherjs-server-${{needs.setup.outputs.ENVIRONMENT}} || true
             docker-compose up -d
             docker system prune -af
