@@ -79,6 +79,7 @@ Logger.prototype = {
       this.file = null;
     }
     if (this.filename) {
+      console.log("Opening log file", this.filename);
       this.file = fs.createWriteStream(this.filename, {flags: 'a', mode: parseInt('644', 8), encoding: "UTF-8"});
     }
   }
@@ -103,13 +104,7 @@ var logger = new Logger(0, null, true);
 
 require('dotenv').config();
 
-var httpsOptions = {
-  key: fs.readFileSync(process.env.KEY_FILE_PATH),
-  cert: fs.readFileSync(process.env.PEM_FILE_PATH),
-
-};
-
-var server = https.createServer(httpsOptions, function(request, response) {
+function requestListerner(request, response) {
   var url = parseUrl(request.url, true);
   var protocol = request.headers["forwarded-proto"] || "http:";
   var host = request.headers.host;
@@ -150,7 +145,65 @@ var server = https.createServer(httpsOptions, function(request, response) {
   } else {
     write404(response);
   }
-});
+}
+
+var server;
+
+var useHttps = process.env.HTTPS == "true";
+
+if (useHttps) {
+  var httpsOptions = {
+    key: fs.readFileSync(process.env.KEY_FILE_PATH),
+    cert: fs.readFileSync(process.env.PEM_FILE_PATH),
+
+  };
+  server = https.createServer(httpsOptions, requestListerner);
+} else {
+    server = http.createServer(requestListerner);
+}
+
+// var server = https.createServer(httpsOptions, function(request, response) {
+//   var url = parseUrl(request.url, true);
+//   var protocol = request.headers["forwarded-proto"] || "http:";
+//   var host = request.headers.host;
+//   var base = protocol + "//" + host;
+//   console.log("server request, protocol=" + protocol + ", url=" + request.url + ", pathname=" + url.pathname);
+//   console.log(request.url);
+//
+//   if (url.pathname == '/status') {
+//     response.end("OK");
+//   } else if (url.pathname == '/load') {
+//     var load = getLoad();
+//     response.writeHead(200, {"Content-Type": "text/plain"});
+//     response.end("OK\n" +
+//         "Connections: " + load.connections + "\n" +
+//         "Sessions: " + load.sessions + "\n" +
+//         "Single-user: " + load.solo + "\n" +
+//         "Active sessions: " + (load.sessions - load.solo));
+//   } else if (url.pathname == '/server-source') {
+//     response.writeHead(200, {"Content-Type": "text/plain"});
+//     response.end(thisSource);
+//   } else if (url.pathname == '/findroom') {
+//     if (request.method == "OPTIONS") {
+//       // CORS preflight
+//       corsAccept(request, response);
+//       return;
+//     }
+//     var prefix = url.query.prefix;
+//     var max = parseInt(url.query.max, 10);
+//     if (! (prefix && max)) {
+//       write400("You must include a valid prefix=CHARS&max=NUM portion of the URL", response);
+//       return;
+//     }
+//     if (prefix.search(/[^a-zA-Z0-9]/) != -1) {
+//       write400("Invalid prefix", response);
+//       return;
+//     }
+//     findRoom(prefix, max, response);
+//   } else {
+//     write404(response);
+//   }
+// });
 
 function corsAccept(request, response) {
   response.writeHead(200, {
@@ -221,8 +274,9 @@ function pickRandom(seq) {
 }
 
 function startServer(port, host) {
+  var protocol = useHttps ? "https" : "http";
   server.listen(port, host, function() {
-    logger.info('HUB Server listening on port ' + port + " interface: " + host + " PID: " + process.pid);
+    logger.info('HUB Server listening on port: ' + port + ", interface: " + host + ", protocol: " + protocol + ", PID: " + process.pid);
   });
 }
 
