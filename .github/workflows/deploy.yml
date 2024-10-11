@@ -114,7 +114,7 @@ jobs:
           script_stop: true
           script: |
             cd ${{ needs.setup.outputs.ROOT_FOLDER }}
-            docker-compose build
+            docker compose build
   restart_server_job:
     name: Restart server
     runs-on: ubuntu-latest
@@ -131,5 +131,5 @@ jobs:
           script: |
             cd ${{ needs.setup.outputs.ROOT_FOLDER }}
             docker stop togetherjs-server-${{needs.setup.outputs.ENVIRONMENT}} || true
-            docker-compose up -d
+            docker compose up -d
             docker system prune -af
