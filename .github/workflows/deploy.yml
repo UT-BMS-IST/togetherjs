@@ -1,7 +1,7 @@
 name: Deploy workflow
 on:
-#  push:
-#    branches: [ master ]
+  push:
+    branches: [ develop, prod ]
   workflow_dispatch:
 #    inputs:
 #      environment:
@@ -30,15 +30,15 @@ jobs:
           echo "$BRANCH_NAME"
           if [ $BRANCH_NAME == "refs/heads/develop" ]
           then
-            echo "Deploying to the develop environment"
+            echo "Deploying to the test server"
             FOLDER=develop
             ENVIRONMENT=develop
             SERVER_URL=sbs-test.bms.utwente.nl
-          elif [ $BRANCH_NAME == "refs/heads/production" ]
+          elif [ $BRANCH_NAME == "refs/heads/prod" ]
           then
-            echo "Deploying to the production environment"
-            FOLDER=production
-            ENVIRONMENT=production
+            echo "Deploying to the production server"
+            FOLDER=prod
+            ENVIRONMENT=prod
             SERVER_URL=sbs-prod.bms.utwente.nl
           else
             echo "Error: branch $BRANCH_NAME has no deploy environment"
@@ -82,15 +82,15 @@ jobs:
             git stash drop
             if [ ${{ needs.setup.outputs.ENVIRONMENT }} == "develop" ]
             then
-              echo "Develop environment - need to checkout develop"
+              echo "Test (staging) environment - need to checkout develop"
               git checkout develop
             else
               echo "Not in the develop environment"
             fi
-            if [ ${{ needs.setup.outputs.ENVIRONMENT }} == "production" ]
+            if [ ${{ needs.setup.outputs.ENVIRONMENT }} == "prod" ]
             then
-              echo "Pilots staging environment - need to checkout production"
-              git checkout production
+              echo "Production environment - need to checkout production"
+              git checkout prod
             else
               echo "Not in the production environment"
             fi
