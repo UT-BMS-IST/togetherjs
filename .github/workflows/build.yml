@@ -20,6 +20,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build Docker image
+        run: |
+          docker build -t ghcr.io/ut-bms-ist/togetherjs-server:${{ github.ref_name }} .
+
       - name: Push Docker image
         run: |
           docker push ghcr.io/ut-bms-ist/togetherjs-server:${{ github.ref_name }}
