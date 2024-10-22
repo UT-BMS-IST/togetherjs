@@ -22,10 +22,10 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker push ghcr.io/${{ github.repository }}/togetherjs-server:${{ github.ref_name }}
+          docker push ghcr.io/ut-bms-ist/togetherjs-server:${{ github.ref_name }}
 
       - name: Tag and push as latest
         if: github.ref == 'refs/heads/prod'
         run: |
-          docker tag ghcr.io/${{ github.repository }}/togetherjs-server:${{ github.ref_name }} ghcr.io/${{ github.repository }}/togetherjs-server:latest
-          docker push ghcr.io/${{ github.repository }}/togetherjs-server:latest
+          docker tag ghcr.io/ut-bms-ist/togetherjs-server:${{ github.ref_name }} ghcr.io/ut-bms-ist/togetherjs-server:latest
+          docker push ghcr.io/ut-bms-ist/togetherjs-server:latest
