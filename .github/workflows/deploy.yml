@@ -1,7 +1,5 @@
 name: Deploy workflow
 on:
-  push:
-    branches: [ develop, prod ]
   workflow_dispatch:
 #    inputs:
 #      environment:
