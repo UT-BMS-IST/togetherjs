@@ -1,0 +1,31 @@
+name: Build Docker Image
+
+on:
+  push:
+    branches:
+      - prod
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/${{ github.repository }}/togetherjs-server:${{ github.ref_name }}
+
+      - name: Tag and push as latest
+        if: github.ref == 'refs/heads/prod'
+        run: |
+          docker tag ghcr.io/${{ github.repository }}/togetherjs-server:${{ github.ref_name }} ghcr.io/${{ github.repository }}/togetherjs-server:latest
+          docker push ghcr.io/${{ github.repository }}/togetherjs-server:latest
