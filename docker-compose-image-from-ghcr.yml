@@ -3,7 +3,7 @@ version: "3"
 services:
   togetherjs_server:
     container_name: togetherjs-server-${ENVIRONMENT}
-    image: ghcr.io/ut-bms-ist/togetherjs:togetherjs-server-${ENVIRONMENT}
+    image: ghcr.io/ut-bms-ist/togetherjs-server:latest
     restart: unless-stopped
     ports:
       - "${PORT}:443"
