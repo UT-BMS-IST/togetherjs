@@ -1,3 +1,5 @@
+# Usage: docker-compose -f docker-compose-image-from-ghcr.yml up -d
+# This will start the togetherjs-server container from the image ghcr.io/ut-bms-ist/togetherjs-server:latest
 version: "3"
 
 services:

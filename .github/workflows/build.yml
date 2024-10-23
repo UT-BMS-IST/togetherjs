@@ -1,3 +1,4 @@
+# This workflow will build a Docker image and push it to GitHub Container Registry
 name: Build Docker Image
 
 on:

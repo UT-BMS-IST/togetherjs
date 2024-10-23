@@ -1,15 +1,7 @@
+# This will build the Docker image and run it on the server.
 name: Deploy workflow
 on:
   workflow_dispatch:
-#    inputs:
-#      environment:
-#        description: 'Environment to deploy to'
-#        required: true
-#        default: 'warning'
-#        type: choice
-#        options:
-#          - develop
-#          - production
 env:
   General_Timeout_Minutes: 15
 concurrency:
