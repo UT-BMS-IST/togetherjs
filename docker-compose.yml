@@ -1,24 +1,17 @@
-version: "3"
-
 services:
   togetherjs_server:
     container_name: togetherjs-server-${ENVIRONMENT}
-    build:
-      context: ./
-      dockerfile: 'Dockerfile'
+    image: ghcr.io/ut-bms-ist/togetherjs-server:latest
+#    build:
+#      context: ./
+#      dockerfile: 'Dockerfile'
     restart: unless-stopped
     ports:
       - "${PORT}:443"
-    volumes:
-      - ${KEY_FILE_PATH}:/usr/src/app/certificates/key-file.key
-      - ${PEM_FILE_PATH}:/usr/src/app/certificates/key-file.pem
-    #      - ${LOG_FILE}:/usr/src/app/logging/logFile.log
     environment:
       - HUB_SERVER_HOST=togetherjs_server
       - HUB_SERVER_PORT=443
       - LOG_LEVEL=${LOG_LEVEL}
-      #      - LOG_FILE=/usr/src/app/logging/logFile.log
       - STDOUT=${STDOUT}
       - HTTPS=${HTTPS}
-      - KEY_FILE_PATH=/usr/src/app/certificates/key-file.key
-      - PEM_FILE_PATH=/usr/src/app/certificates/key-file.pem
+
