@@ -116,14 +116,10 @@ You can specify the following environment variables in a .env file in the root d
 
 ```
 ENVIRONMENT=<the environment name appended to the docker-compose services, only used in docker-compose>
-HOST=<host name or ip>
 PORT=<port number>
 LOG_LEVEL=<from 0 (very verbose) to 5 (nothing), default 0>
-LOG_FILE=<file to log to (make sure it exists, default stdout)>
 STDOUT=<boolean, log to file and stdout>
 HTTPS=<boolean, use https, default false>
-KEY_FILE_PATH=<path to certificate key file>
-PEM_FILE_PATH=<path to certificate pem file>
 ```
 
 Status calls
