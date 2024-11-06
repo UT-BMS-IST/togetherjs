@@ -116,6 +116,7 @@ You can specify the following environment variables in a .env file in the root d
 
 ```
 ENVIRONMENT=<the environment name appended to the docker-compose services, only used in docker-compose>
+TOGETHERJS_TAG=<tag of the togetherjs version to use, default latest>
 PORT=<port number>
 LOG_LEVEL=<from 0 (very verbose) to 5 (nothing), default 0>
 STDOUT=<boolean, log to file and stdout>

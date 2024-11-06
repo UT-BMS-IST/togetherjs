@@ -1,7 +1,7 @@
 services:
   togetherjs_server:
     container_name: togetherjs-server-${ENVIRONMENT}
-    image: ghcr.io/ut-bms-ist/togetherjs-server:latest
+    image: ghcr.io/ut-bms-ist/togetherjs-server:${TOGETHERJS_TAG:-latest}
 #    build:
 #      context: ./
 #      dockerfile: 'Dockerfile'
