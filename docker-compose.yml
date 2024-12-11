@@ -22,3 +22,9 @@ services:
       - HTTPS=${HTTPS}
       - KEY_FILE_PATH=/usr/src/app/certificates/key-file.key
       - PEM_FILE_PATH=/usr/src/app/certificates/key-file.pem
+    networks:
+      - proxy-network
+
+networks:
+  proxy-network:
+    external: true
