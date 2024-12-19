@@ -14,4 +14,12 @@ services:
       - LOG_LEVEL=${LOG_LEVEL}
       - STDOUT=${STDOUT}
       - HTTPS=${HTTPS}
+    networks:
+      - proxy-network
+
+networks:
+  proxy-network:
+    external: true
+
+
 
